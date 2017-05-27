@@ -1,0 +1,265 @@
+﻿@model asp_mvc_2.Models.ViewModel.PelangganDataView
+
+<div>
+
+    <h1>List of Users</h1>
+
+    <table class="table table-striped table-condensed table-hover">
+
+        <thead>
+
+            <tr>
+
+                <th>ID</th>
+
+                <th>No ID</th>
+
+                <th>Nama</th>
+
+                <th>Alamat</th>
+
+                <th>No Tlp1</th>
+
+                <th>No Tlp2</th>
+
+                <th></th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @foreach (var i in Model.PelangganProfile)
+
+            {
+
+                <tr>
+
+                    <td> @Html.DisplayFor(m => i.id_pelanggan)</td>
+
+                    <td> @Html.DisplayFor(m => i.no_id)</td>
+
+                    <td> @Html.DisplayFor(m => i.nama)</td>
+
+                    <td> @Html.DisplayFor(m => i.alamat)</td>
+
+                    <td>@Html.DisplayFor(m => i.no_tlp1)</td>
+
+                    <td> @Html.DisplayFor(m => i.no_tlp2)</td>
+
+                    <td><a href="javascript:void(0)" class="lnkEdit">Edit</a></td>
+
+                    <td><a href="javascript:void(0)" class="lnkDelete">Delete</a></td>
+
+                </tr>
+
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<div id="divEdit" style="display:none">
+
+    <input type="hidden" id="hidID" />
+
+    <table>
+
+        <tr>
+
+            <td>No ID</td>
+
+            <td><input type="text" id="txtNoID" class="form-control" /></td>
+
+        </tr>
+
+        <tr>
+
+            <td>Nama</td>
+
+            <td><input type="text" id="txtNama" class="form-control" /></td>
+
+        </tr>
+
+        <tr>
+
+            <td>Alamat</td>
+
+            <td><input type="text" id="txtAlamat" class="form-control" /></td>
+
+        </tr>
+
+        <tr>
+
+            <td>TELP 1</td>
+
+            <td><input type="text" id="txtTelp1" class="form-control" /></td>
+
+        </tr>
+
+        <tr>
+
+            <td>TELP 2</td>
+
+            <td><input type="text" id="txtTelp2" class="form-control" /></td>
+
+        </tr>
+
+    </table>
+
+</div>
+
+<script type="text/javascript">
+
+$(function () {
+
+var initDialog = function (type) {
+
+var title = type;
+
+$("#divEdit").dialog({
+
+autoOpen: false,
+
+modal: true,
+
+title: type + 'Pelanggan',
+
+width: 360,
+
+buttons: {
+
+Save: function () {
+
+var pelangganid = $("#hidID").val();
+
+var noID = $("#txtNoID").val();
+
+var nama = $("#txtNama").val();
+
+var alamat = $("#txtAlamat").val();
+
+var telp1 = $("#txtTelp1").val();
+
+var telp2 = $("#txtTelp2").val();
+
+UpdatePelanggan(id, noID,nama,alamat,telp1,telp2);
+
+$(this).dialog("destroy");
+
+},
+
+Cancel: function () { $(this).dialog("destroy"); }
+
+}
+
+});
+
+}
+
+function UpdatePelanggan(id, no, m, j, w, thn, hrg) {
+
+$.ajax({
+
+type: "POST",
+
+url: "@(Url.Action("UpdatePelangganData", "Pelanggan"))",
+
+data: { pelangganid: id, noID: no, nama: m, alamat: j,
+telp1: w, telp2 : thn},
+
+success: function (data) {
+
+$("#divUserListContainer").load("@(Url.Action("ManagePelangganPartial","Pelanggan", new { status
+
+="update" }))");
+
+},
+
+error: function (error) {
+
+//to do:
+
+}
+
+});
+
+}
+
+$("a.lnkEdit").on("click", function () {
+
+initDialog("Edit");
+
+$(".alert-success").empty();
+
+var row = $(this).closest('tr');
+
+$("#hidID").val(row.find("td:eq(0)").html().trim());
+
+$("#txtNoID").val(row.find("td:eq(1)").html().trim())
+
+$("#txtNama").val(row.find("td:eq(2)").html().trim())
+
+$("#txtAlamat").val(row.find("td:eq(3)").html().trim())
+
+$("#txtTelp1").val(row.find("td:eq(4)").html().trim())
+
+$("#txtTelp2").val(row.find("td:eq(5)").html().trim())
+
+$("#divEdit").dialog("open");
+
+return false;
+
+});
+
+function DeletePelanggan(id) {
+
+$.ajax({
+
+type: "POST",
+
+url: "@(Url.Action("DeletePelanggan","Pelanggan"))",
+
+data: { pelangganID: id },
+
+success: function (data) {
+
+
+
+$("#divUserListContainer").load("@(Url.Action("ManagePelangganPartial","Pelanggan", new { status
+
+="delete" }))");
+
+},
+
+error: function (error) { }
+
+});
+
+}
+
+$("a.lnkDelete").on("click", function () {
+
+var row = $(this).closest('tr');
+
+var id = row.find("td:eq(0)").html().trim();
+
+var answer = confirm("apakah anda yakin akan menghapus Pelanggan dengan ID " + id + "?");
+
+if (answer)
+
+DeletePelanggan(id);
+
+return false;
+
+});
+
+});
+
+</script>
+
+<span class="alert-success">@ViewBag.Message</span>
+

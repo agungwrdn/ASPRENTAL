@@ -1,0 +1,282 @@
+﻿@model asp_mvc_2.Models.ViewModel.MobilDataView
+
+<div>
+
+    <h1>List of Users</h1>
+
+    <table class="table table-striped table-condensed table-hover">
+
+        <thead>
+
+            <tr>
+
+                <th>ID</th>
+
+                <th>No Plat</th>
+
+                <th>Merk</th>
+
+                <th>Jenis</th>
+
+                <th>Warna</th>
+
+                <th>Tahun</th>
+
+                <th>Harga</th>
+
+                <th></th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @foreach (var i in Model.MobilProfile)
+
+            {
+
+                <tr>
+
+                    <td> @Html.DisplayFor(m => i.id_mobil)</td>
+
+                    <td> @Html.DisplayFor(m => i.no_plat)</td>
+
+                    <td> @Html.DisplayFor(m => i.merk)</td>
+
+                    <td> @Html.DisplayFor(m => i.jenis)</td>
+
+                    <td>@Html.DisplayFor(m => i.warna)</td>
+
+                    <td> @Html.DisplayFor(m => i.tahun)</td>
+
+                    <td> @Html.DisplayFor(m => i.harga_sewa)</td>
+
+                    <td><a href="javascript:void(0)" class="lnkEdit">Edit</a></td>
+
+                    <td><a href="javascript:void(0)" class="lnkDelete">Delete</a></td>
+
+                </tr>
+
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<div id="divEdit" style="display:none">
+
+    <input type="hidden" id="hidID" />
+
+    <table>
+
+        <tr>
+
+            <td>No Plat</td>
+
+            <td><input type="text" id="txtNoPlat" class="form-control" /></td>
+
+        </tr>
+
+        <tr>
+
+            <td>Merk</td>
+
+            <td><input type="text" id="txtMerk" class="form-control" /></td>
+
+        </tr>
+
+        <tr>
+
+            <td>Jenis</td>
+
+            <td><input type="text" id="txtJenis" class="form-control" /></td>
+
+        </tr>
+
+        <tr>
+
+            <td>warna</td>
+
+            <td><input type="text" id="txtWarna" class="form-control" /></td>
+
+        </tr>
+
+        <tr>
+
+            <td>Tahun</td>
+
+            <td><input type="text" id="txtTahun" class="form-control" /></td>
+
+        </tr>
+
+        <tr>
+
+            <td>Harga</td>
+
+            <td><input type="text" id="txtHarga" class="form-control" /></td>
+
+        </tr>
+
+    </table>
+
+</div>
+
+<script type="text/javascript">
+
+$(function () {
+
+var initDialog = function (type) {
+
+var title = type;
+
+$("#divEdit").dialog({
+
+autoOpen: false,
+
+modal: true,
+
+title: type + ' Mobil',
+
+width: 360,
+
+buttons: {
+
+Save: function () {
+
+var id = $("#hidID").val();
+
+var noPlat = $("#txtNoPlat").val();
+
+var merk = $("#txtMerk").val();
+
+var jenis = $("#txtJenis").val();
+
+var warna = $("#txtWrna").val();
+
+var tahun = $("#txtTahun").val();
+
+var harga = $("#txtHarga").val();
+
+UpdateMobil(id, noPlat,merk,jenis,warna,tahun,harga);
+
+$(this).dialog("destroy");
+
+},
+
+Cancel: function () { $(this).dialog("destroy"); }
+
+}
+
+});
+
+}
+
+function UpdateMobil(id, no, m, j, w, thn, hrg) {
+
+$.ajax({
+
+type: "POST",
+
+url: "@(Url.Action("UpdateMobilData", "Mobil"))",
+
+data: { mobilID: id, noPlat: no, merk: m, jenis: j,
+warna: w, tahun : thn, harga : hrg},
+
+success: function (data) {
+
+
+
+$("#divUserListContainer").load("@(Url.Action("ManageMobilPartial","Mobil", new { status
+
+="update" }))");
+
+},
+
+error: function (error) {
+
+//to do:
+
+}
+
+});
+
+}
+
+$("a.lnkEdit").on("click", function () {
+
+initDialog("Edit");
+
+$(".alert-success").empty();
+
+var row = $(this).closest('tr');
+
+$("#hidID").val(row.find("td:eq(0)").html().trim());
+
+$("#txtNoPlat").val(row.find("td:eq(1)").html().trim())
+
+$("#txtMerk").val(row.find("td:eq(2)").html().trim())
+
+$("#txtJenis").val(row.find("td:eq(3)").html().trim())
+
+$("#txtWarna").val(row.find("td:eq(4)").html().trim())
+
+$("#txtTahun").val(row.find("td:eq(5)").html().trim())
+
+$("#txtHarga").val(row.find("td:eq(6)").html().trim())
+
+$("#divEdit").dialog("open");
+
+return false;
+
+});
+
+function DeleteMobil(id) {
+
+$.ajax({
+
+type: "POST",
+
+url: "@(Url.Action("DeleteMobil","Mobil"))",
+
+data: { mobilID: id },
+
+success: function (data) {
+
+
+
+$("#divUserListContainer").load("@(Url.Action("ManageMobilPartial","Mobil", new { status
+
+="delete" }))");
+
+},
+
+error: function (error) { }
+
+});
+
+}
+
+$("a.lnkDelete").on("click", function () {
+
+var row = $(this).closest('tr');
+
+var id = row.find("td:eq(0)").html().trim();
+
+var answer = confirm("apakah anda yakin akan menghapus Mobil dengan ID " + id + "?");
+
+if (answer)
+
+DeleteMobil(id);
+
+return false;
+
+});
+
+});
+
+</script>
+
+<span class="alert-success">@ViewBag.Message</span>
